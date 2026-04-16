@@ -13,6 +13,11 @@ COLOR_BLUE = "\033[94m"
 COLOR_CYAN = "\033[96m"
 COLOR_BOLD = "\033[1m"
 
+
+#ce message est un message de test pour voir si le commit fonctionne 
+
+
+
 # Dictionnaire des ports communs et de leurs services associes
 COMMON_PORTS = {
     20: "FTP-DATA", 21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP",
