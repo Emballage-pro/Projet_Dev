@@ -1,0 +1,8 @@
+# Ignorer tout sauf les fichiers Python du projet
+*
+!*.py
+!.gitignore
+*.pyc
+__pycache__/
+*.egg-info/
+.DS_Store
