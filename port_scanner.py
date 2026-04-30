@@ -35,6 +35,27 @@ def print_banner():
     print(COLOR_CYAN + "=" * 55 + COLOR_RESET)
 
 
+def estimate_rtt(target_ip, common_ports=[80, 443, 22, 53], default_timeout=1.0):
+    """Estime le timeout optimal en mesurant le RTT vers la cible."""
+    rtts = []
+    for port in common_ports:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(0.5)
+            start = time.time()
+            result = sock.connect_ex((target_ip, port))
+            elapsed = time.time() - start
+            sock.close()
+            if result == 0:
+                rtts.append(elapsed)
+                break
+        except (socket.timeout, ConnectionRefusedError, OSError):
+            pass
+    if rtts:
+        return min(max(0.1, (sum(rtts) / len(rtts)) * 3), 5.0)
+    return default_timeout
+
+
 def scan_port(target, port, timeout, open_ports, lock):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,8 +123,8 @@ def main():
     parser.add_argument(
         "--timeout",
         type=float,
-        help="Delai d'attente par connexion en secondes. Par defaut: 1.0",
-        default=1.0
+        help="Timeout par connexion en secondes. Par defaut: auto (estimation RTT)",
+        default=None
     )
 
     args = parser.parse_args()
@@ -111,7 +132,7 @@ def main():
     if args.threads < 1:
         print(f"{COLOR_RED}Erreur: Le nombre de threads doit etre >= 1.{COLOR_RESET}")
         return
-    if args.timeout <= 0:
+    if args.timeout is not None and args.timeout <= 0:
         print(f"{COLOR_RED}Erreur: Le timeout doit etre > 0.{COLOR_RESET}")
         return
 
@@ -127,11 +148,18 @@ def main():
         print(f"{COLOR_RED}Erreur: Impossible de resoudre le nom d'hote '{args.target}'.{COLOR_RESET}")
         return
 
+    if args.timeout is None:
+        print(f"{COLOR_BLUE}Estimation du RTT pour un timeout optimal...{COLOR_RESET}")
+        scan_timeout = estimate_rtt(target_ip)
+        print(f"{COLOR_BLUE}Timeout estime : {scan_timeout:.2f}s{COLOR_RESET}")
+    else:
+        scan_timeout = args.timeout
+
     print_banner()
     print(f"  Cible         : {COLOR_YELLOW}{args.target} ({target_ip}){COLOR_RESET}")
     print(f"  Plage de ports: {COLOR_YELLOW}{start_port} - {end_port}{COLOR_RESET}")
     print(f"  Threads       : {COLOR_YELLOW}{args.threads}{COLOR_RESET}")
-    print(f"  Timeout       : {COLOR_YELLOW}{args.timeout}s{COLOR_RESET}")
+    print(f"  Timeout       : {COLOR_YELLOW}{scan_timeout:.2f}s{COLOR_RESET}")
     print(COLOR_CYAN + "-" * 55 + COLOR_RESET)
     print(COLOR_BLUE + "Demarrage du scan...\n" + COLOR_RESET)
 
@@ -150,7 +178,7 @@ def main():
         for _ in range(num_threads):
             t = threading.Thread(
                 target=worker,
-                args=(target_ip, port_queue, args.timeout, open_ports, lock)
+                args=(target_ip, port_queue, scan_timeout, open_ports, lock)
             )
             t.daemon = True
             t.start()
