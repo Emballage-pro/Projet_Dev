@@ -23,22 +23,18 @@ def print_banner():
 
 def ping_ip(ip_address, active_ips, lock):
     """Ping une adresse IP pour vérifier si elle est active."""
-    try:
-        # Sur macOS/Linux, on utilise 'ping' avec timeout
-        result = subprocess.run(
-            ["ping", "-c", "1", "-W", "1000", str(ip_address)],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=3
-        )
-        if result.returncode == 0:
-            with lock:
-                print(f"{COLOR_GREEN}[+] {ip_address:<15} ACTIVE{COLOR_RESET}")
-                active_ips.append(str(ip_address))
-        else:
-            print(f"{COLOR_RED}[-] {ip_address:<15} Inactif{COLOR_RESET}")
-    except Exception:
-        print(f"{COLOR_RED}[-] {ip_address:<15} Erreur{COLOR_RESET}")
+    # Sur macOS/Linux, on utilise 'ping' avec timeout
+    result = subprocess.run(
+        ["ping", "-c", "1", "-W", "1000", str(ip_address)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        timeout=3
+    )
+    if result.returncode == 0:
+        with lock:
+            print(f"{COLOR_GREEN}[+] {str(ip_address):<15} ACTIVE{COLOR_RESET}")
+            active_ips.append(str(ip_address))
+    # Removed inactive and error prints
 
 
 def worker(ip_queue, active_ips, lock):
@@ -134,11 +130,7 @@ def main():
     print(f"{COLOR_BLUE}Scan termine en {duration:.2f} secondes.{COLOR_RESET}")
     print(f"{COLOR_BLUE}Machines actives trouvees : {len(active_ips)}{COLOR_RESET}")
 
-    if active_ips:
-        if not args.quiet:
-            print(COLOR_BLUE + "\nResume des IPs actives :" + COLOR_RESET)
-        for ip in sorted(active_ips, key=lambda x: [int(i) for i in x.split('.')]):
-            print(f"  {COLOR_GREEN}{ip}{COLOR_RESET}")
+    # Removed summary list of active IPs
 
     if not args.quiet:
         print(COLOR_CYAN + "=" * 55 + COLOR_RESET)
