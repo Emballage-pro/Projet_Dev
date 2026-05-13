@@ -1,0 +1,32 @@
+##### PARTIE DU CODE POUR CREER LA DATABASE #####
+
+
+CREATE DATABASE donnees;
+USE donnees;
+
+CREATE TABLE ma_table (
+id VARCHAR(255),
+iban VARCHAR(255),
+ip VARCHAR(255),
+mac VARCHAR(255),
+infected BOOL);
+
+#### EXEMPLES DE COMMANDES POUR INSERER DES DONNEES DANS LA TABLE ma_table ####
+
+
+INSERT INTO ma_table (id, iban, ip, mac, infected) VALUES ('1', 'FR895624', '1.2.3.4', '00:1b:63:84:45:e6', True);
+
+INSERT INTO ma_table (id, iban, ip, mac, infected) VALUES ('2', 'FR895624', Null, Null, False);
+
+
+
+
+
+
+
+
+
+
+
+
+
