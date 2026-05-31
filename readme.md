@@ -1,12 +1,12 @@
 # IBAN Clipboard Replacer – Security Awareness Project
 
-> ⚠️ **AVERTISSEMENT IMPORTANT / IMPORTANT WARNING** ⚠️  
+> ⚠️ **AVERTISSEMENT IMPORTANT / IMPORTANT WARNING**   
 > Ce projet est fourni **uniquement à des fins éducatives, de recherche en cybersécurité et de sensibilisation**.  
 > **Toute utilisation malveillante, frauduleuse ou non autorisée est strictement interdite.**
 
 ---
 
-## 📌 Description
+##  Description
 
 Ce projet est une **preuve de concept (PoC)** démontrant comment une application locale peut surveiller le presse‑papiers du système et détecter des chaînes correspondant au format d’un IBAN valide.
 
@@ -20,7 +20,7 @@ L’objectif de ce projet est de :
 
 ---
 
-## 🛡️ Contexte de sécurité
+##  Contexte de sécurité
 
 Les attaques basées sur le presse‑papiers existent réellement et sont parfois utilisées par des logiciels malveillants afin de :
 
@@ -28,23 +28,23 @@ Les attaques basées sur le presse‑papiers existent réellement et sont parfoi
 - Rediriger des transferts financiers
 - Abuser de la confiance de l’utilisateur final
 
-👉 **Ce dépôt n’a pas vocation à encourager ces pratiques**, mais à **les exposer** afin de mieux :
+**Ce dépôt n’a pas vocation à encourager ces pratiques**, mais à **les exposer** afin de mieux :
 - les reconnaître
 - les analyser
 - les bloquer
 
 ---
 
-## ⚖️ Usage autorisé
+##  Usage autorisé
 
-✅ Autorisé :
+ Autorisé :
 - Recherche en cybersécurité
 - Analyse de comportements malveillants
 - Tests en environnement **isolé** (VM / sandbox)
 - Démonstrations pédagogiques
 - Apprentissage Python & sécurité offensive/défensive
 
-❌ Strictement interdit :
+ Strictement interdit :
 - Usage en production
 - Usage à l’insu d’un utilisateur
 - Usage à des fins financières, frauduleuses ou criminelles
@@ -53,7 +53,7 @@ Les attaques basées sur le presse‑papiers existent réellement et sont parfoi
 
 ---
 
-## 🚨 Responsabilité légale
+##  Responsabilité légale
 
 L’auteur de ce projet :
 
@@ -61,14 +61,14 @@ L’auteur de ce projet :
 - Décline **toute responsabilité** en cas de dommages financiers, matériels ou légaux
 - Rappelle que ce type de comportement peut être **illégal dans de nombreux pays**
 
-✅ Vous êtes **seul responsable** :
+ Vous êtes **seul responsable** :
 - de vos tests
 - de votre environnement
 - du respect des lois locales et internationales
 
 ---
 
-## 🧪 Environnement recommandé
+##  Environnement recommandé
 
 - Système isolé (VM, sandbox)
 - Machine de test personnelle
@@ -77,7 +77,7 @@ L’auteur de ce projet :
 
 ---
 
-## 🔐 Bonnes pratiques de défense (Blue Team)
+##  Bonnes pratiques de défense (Blue Team)
 
 Ce projet permet également de mettre en évidence plusieurs moyens de protection :
 
@@ -89,7 +89,7 @@ Ce projet permet également de mettre en évidence plusieurs moyens de protectio
 
 ---
 
-## 📚 Disclaimer éthique
+##  Disclaimer éthique
 
 > **Ce projet est un outil de compréhension, pas une arme.**
 
@@ -99,14 +99,14 @@ Si vous êtes intéressé par la cybersécurité :
 
 ---
 
-## 📄 Licence
+##  Licence
 
 Ce projet est fourni **sans aucune garantie**.  
 L’usage se fait **à vos propres risques**.
 
 ---
 
-## ✉️ Contact
+##  Contact
 
 Si vous êtes un étudiant, un chercheur ou un professionnel de la sécurité et que vous souhaitez discuter de ce sujet dans un cadre légal et éthique, n’hésitez pas à ouvrir une issue.
 
